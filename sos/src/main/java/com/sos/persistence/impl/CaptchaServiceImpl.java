@@ -6,6 +6,7 @@ package com.sos.persistence.impl;
 
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import com.mongodb.DBObject;
 import com.sos.entity.Captcha;
 import com.sos.enums.BooleanEnum;
 import com.sos.persistence.CaptchaService;
+import com.sos.util.DateUtils;
 
 /**  
  * <b>功能：</b>CaptchaServiceImpl.java<br/>
@@ -45,17 +47,26 @@ public class CaptchaServiceImpl extends AbstractService<Captcha> implements
 		return captcha;
 	}
 	
+	@Override
+	public boolean checkExpireCaptcha(String mobile,String captcha) {
+		DBObject o = new BasicDBObject();
+		o.put("mobile", mobile);
+		o.put("effective", BooleanEnum.TRUE.name());
+		o.put("captcha", captcha);
+		o.put("invalidateTime", new BasicDBObject("$gte", DateUtils.format(new Date(), DateUtils.SIMPLE_PATTERN)));
+		DBObject dbObject = getDBCollection().findOne(o);
+		return dbObject != null;
+	}
+	
 	private String createCaptcha(){
 		Random ran = new Random();
 		Integer v = ran.nextInt(9999);
 		DecimalFormat decFormat = new DecimalFormat("0000");
 		return decFormat.format(v);
 	}
-	
-	/**
-	 * 将该号码下其它验证码失效掉
-	 */
-	private void invalidateOtherCaptcha(String mobile){
+
+	@Override
+	public void invalidateOtherCaptcha(String mobile){
 		DBObject query = new BasicDBObject();
 		query.put("mobile", mobile);
 		query.put("effective", BooleanEnum.TRUE.name());

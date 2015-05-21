@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,7 @@ public class EntityUtils {
 	public static DBObject getDBObject(CoreEntity entity){
 		DBObject dbObject = new BasicDBObject();
 		if(entity.getId() != null){
-			dbObject.put("_id", new ObjectId(entity.getId()));
+			dbObject.put("_id", entity.getId());
 		}
 		List<Field> fields = getMongoFields(entity.getClass());
 		try{
@@ -88,7 +87,7 @@ public class EntityUtils {
 	public static DBObject getDBObjectForUpdate(CoreEntity entity){
 		DBObject dbObject = new BasicDBObject();
 		if(entity.getId() != null){
-			dbObject.put("_id", new ObjectId(entity.getId()));
+			dbObject.put("_id", entity.getId());
 		}
 		List<Field> fields = getMongoFields(entity.getClass());
 		try{
@@ -112,7 +111,7 @@ public class EntityUtils {
 	public static DBObject getDBObjectForRemove(CoreEntity entity){
 		DBObject dbObject = new BasicDBObject();
 		if(entity.getId() != null){
-			dbObject.put("_id", new ObjectId(entity.getId()));
+			dbObject.put("_id", entity.getId());
 		}else{
 			throw new RuntimeException("id is empty");
 		}

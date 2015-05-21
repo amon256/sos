@@ -7,8 +7,8 @@ package com.sos.persistence.impl;
 import java.lang.reflect.ParameterizedType;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.mongodb.BasicDBObject;
@@ -42,6 +42,9 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 	private Mongo mongo;
 	
 	public T add(T entity) {
+		if(entity.getId() == null){
+			entity.setId(UUID.randomUUID().toString().toLowerCase().replaceAll("-", ""));
+		}
 		if(entity.getCreateTime() == null){
 			entity.setCreateTime(new Date());
 		}
@@ -64,7 +67,7 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 	}
 	
 	public T get(String id){
-		DBObject dbObject = new BasicDBObject("_id",new ObjectId(id));
+		DBObject dbObject = new BasicDBObject("_id",id);
 		dbObject = mongo.getDB(dbName).getCollection(getCollectionName()).findOne(dbObject);
 		T result = null;
 		if(dbObject != null){

@@ -17,5 +17,15 @@ public interface CaptchaService extends CoreService<Captcha>{
 	 * 创建并发送验证码
 	 */
 	public Captcha createAndSendCaptcha(String mobile);
+	
+	/**
+	 * 根据手机号码校验验证码,并且失效时间未过
+	 */
+	public boolean checkExpireCaptcha(String mobile,String captcha);
+	
+	/**
+	 * 将该号码下其它验证码失效掉
+	 */
+	public void invalidateOtherCaptcha(String mobile);
 
 }
