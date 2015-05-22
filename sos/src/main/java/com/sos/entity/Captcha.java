@@ -6,7 +6,8 @@ package com.sos.entity;
 
 import java.util.Date;
 
-import com.sos.annotations.DBField;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.sos.enums.BooleanEnum;
 
 /**  
@@ -14,31 +15,28 @@ import com.sos.enums.BooleanEnum;
  * <b>描述：</b> 验证码<br/>
  * <b>@author： </b>fengmengyue<br/>
  */
+@Document(collection="captcha")
 public class Captcha extends CoreEntity {
 	private static final long serialVersionUID = 6571172372854308894L;
 
 	/**
 	 * 手机号码
 	 */
-	@DBField(name="mobile",modify=false)
 	private String mobile;
 	
 	/**
 	 * 验证码
 	 */
-	@DBField(name="captcha",modify=false)
 	private String captcha;
 	
 	/**
 	 * 失效时间
 	 */
-	@DBField(name="invalidateTime")
 	private Date invalidateTime;
 	
 	/**
 	 * 是否有效
 	 */
-	@DBField(name="effective")
 	private BooleanEnum effective;
 	
 	public String getMobile() {

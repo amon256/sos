@@ -7,21 +7,18 @@ package com.sos.persistence.impl;
 import java.lang.reflect.ParameterizedType;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-import com.mongodb.WriteResult;
 import com.sos.entity.CoreEntity;
 import com.sos.persistence.CoreService;
-import com.sos.util.EntityUtils;
-import com.sos.util.MongoUtils;
 
 /**  
  * <b>功能：</b>AbstractService.java<br/>
@@ -31,15 +28,10 @@ import com.sos.util.MongoUtils;
 public abstract class AbstractService<T extends CoreEntity> implements CoreService<T>{
 	
 	/**
-	 * DBName
-	 */
-	private String dbName = "sos";
-	
-	/**
-	 * Mongo实例
+	 * MongoTemplate实例
 	 */
 	@Autowired
-	private Mongo mongo;
+	private MongoTemplate mongoTemplate;
 	
 	public T add(T entity) {
 		if(entity.getId() == null){
@@ -51,41 +43,40 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 		if(entity.getLastUpdateTime() == null){
 			entity.setLastUpdateTime(entity.getCreateTime());
 		}
-		WriteResult result = mongo.getDB(dbName).getCollection(getCollectionName()).insert(EntityUtils.getDBObject(entity));
-		if(result.getN() > 0){
-			//add success
-		}
+		mongoTemplate.insert(entity);
 		return entity;
 	}
 	
-	public boolean remove(T entity) {
-		WriteResult result = mongo.getDB(dbName).getCollection(getCollectionName()).remove(EntityUtils.getDBObjectForRemove(entity));
-		if(result.getN() > 0){
-			return true;
+	@Override
+	public void update(T entity, Set<String> updateFields) {
+		if(entity == null || entity.getId() == null || updateFields == null || updateFields.isEmpty()){
+			return;
 		}
-		return false;
+		Update update = Update.update("lastUpdateTime", new Date());
+		try{
+			for(String field : updateFields){
+				update.set(field, BeanUtils.getPropertyDescriptor(entity.getClass(), field).getReadMethod().invoke(entity, new Object[]{}));
+			}
+		}catch(Exception e){
+			throw new RuntimeException(e);
+		}
+		mongoTemplate.updateFirst(Query.query(Criteria.where("id").is(entity.getId())), update, entity.getClass());
+	}
+	
+	@Override
+	public boolean delete(T entity) {
+		mongoTemplate.remove(entity);
+		return true;
 	}
 	
 	public T get(String id){
-		DBObject dbObject = new BasicDBObject("_id",id);
-		dbObject = mongo.getDB(dbName).getCollection(getCollectionName()).findOne(dbObject);
-		T result = null;
-		if(dbObject != null){
-			try{
-				Class<T> entityClass = getCurrentClass();
-				result = EntityUtils.dbObject2Bean(entityClass.newInstance(), dbObject);
-			}catch(Exception e){
-				throw new RuntimeException(e);
-			}
-		}
-		return result;
+		Class<T> entityClass = getCurrentClass();
+		return mongoTemplate.findById(id, entityClass);
 	}
 	
 	@Override
 	public List<T> getAll() {
-		DBCursor cursor = mongo.getDB(dbName).getCollection(getCollectionName()).find();
-		Class<T> clazz = getCurrentClass();
-		return MongoUtils.dbCursor2List(clazz, cursor);
+		return mongoTemplate.findAll(getCurrentClass());
 	}
 	
 	protected Class<T> getCurrentClass(){
@@ -95,24 +86,10 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 		return entityClass;
 	}
 	
-	protected DB getDB(){
-		return mongo.getDB(getDbName());
-	}
-	
-	protected DBCollection getDBCollection(){
-		return getDB().getCollection(getCollectionName());
-	}
-	
 	/**
-	 * 数据集名称
+	 * 获取MongoTemplate
 	 */
-	protected abstract String getCollectionName();
-	
-	public Mongo getMongo() {
-		return mongo;
-	}
-	
-	public String getDbName() {
-		return dbName;
+	public MongoTemplate getMongoTemplate() {
+		return mongoTemplate;
 	}
 }

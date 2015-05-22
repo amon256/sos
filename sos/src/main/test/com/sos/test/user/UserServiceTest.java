@@ -45,7 +45,7 @@ public class UserServiceTest extends TestBase {
 	
 	@Test
 	public void testQuery(){
-		List<User> users = userService.queryByMobile("211");
+		List<User> users = userService.getAll();
 		for(User u : users){
 			System.out.println(u.getId() + "," + u.getNickName());
 		}
@@ -54,6 +54,5 @@ public class UserServiceTest extends TestBase {
 	@Test
 	public void testDrop(){
 		UserServiceImpl impl = (UserServiceImpl)userService;
-		impl.getMongo().getDB("sos").getCollection("users").drop();
 	}
 }

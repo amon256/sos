@@ -5,6 +5,7 @@
 package com.sos.persistence;
 
 import java.util.List;
+import java.util.Set;
 
 import com.sos.entity.CoreEntity;
 
@@ -21,9 +22,14 @@ public interface CoreService<T extends CoreEntity> {
 	public T add(T entity);
 	
 	/**
+	 * 更新数据
+	 */
+	public void update(T entity,Set<String> updateFields);
+	
+	/**
 	 * 删除实体
 	 */
-	public boolean remove(T Entity);
+	public boolean delete(T Entity);
 	
 	/**
 	 * 按ID查找

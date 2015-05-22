@@ -16,11 +16,6 @@ import com.sos.entity.User;
 public interface UserService extends CoreService<User>{
 	
 	/**
-	 * 更新用户信息
-	 */
-	public void update(User user);
-	
-	/**
 	 * 按电话号码查询
 	 */
 	public List<User> queryByMobile(String mobile);

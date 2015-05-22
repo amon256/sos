@@ -4,12 +4,13 @@
  */
 package com.sos.controller;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -106,7 +107,6 @@ public class UserController extends BaseController{
 	 */
 	@RequestMapping(value="update")
 	@ResponseBody
-	@DateTimeFormat(pattern="yyyyMMdd")
 	public ResultObject update(User user){
 		logger.info("接收到ID:[{}]更新信息",user.getId());
 		ResultObject resultObject = new ResultObject();
@@ -116,7 +116,13 @@ public class UserController extends BaseController{
 				resultObject.setStatus(false);
 				resultObject.setMsg(msg);
 			}else{
-				userService.update(user);
+				Set<String> updateFields = new HashSet<String>();
+				updateFields.add("nickName");
+				updateFields.add("sex");
+				updateFields.add("birthday");
+				updateFields.add("qq");
+				updateFields.add("email");
+				userService.update(user,updateFields);
 				user = userService.get(user.getId());
 				resultObject.setMsg("修改成功");
 				resultObject.setData(user);

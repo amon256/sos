@@ -18,19 +18,29 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>4.0.3.RELEASE</version>
-		</dependency>
-		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
 			<version>2.9.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>4.0.3.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>4.0.3.RELEASE</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.springframework.data</groupId>
+		  <artifactId>spring-data-mongodb</artifactId>
+		  <version>1.4.2.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>

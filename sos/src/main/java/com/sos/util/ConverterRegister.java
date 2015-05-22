@@ -7,6 +7,8 @@ package com.sos.util;
 import java.util.Date;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import com.sos.enums.BooleanEnum;
 import com.sos.enums.EnumConverter;
@@ -17,19 +19,18 @@ import com.sos.enums.SexEnum;
  * <b>描述：</b> 对功能点的描述<br/>
  * <b>@author： </b>fengmengyue<br/>
  */
+@Component
+@Lazy(value=false)
 public class ConverterRegister {
-	static{
-		
-	}
-	private static boolean register = false;
+	private boolean register = false;
 	
-	public static void registerConverter(){
+	public void registerConverter(){
 		if(!register){
 			register();
 		}
 	}
 	
-	private static void register(){
+	private void register(){
 		ConvertUtils.register(new EnumConverter(), BooleanEnum.class);
 		ConvertUtils.register(new EnumConverter(), SexEnum.class);
 		ConvertUtils.register(new DateConverter(), Date.class);

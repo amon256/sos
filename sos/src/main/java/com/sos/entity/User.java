@@ -6,57 +6,57 @@ package com.sos.entity;
 
 import java.util.Date;
 
-import com.sos.annotations.DBField;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.sos.enums.SexEnum;
+import com.sos.util.serializer.DateOnlySerializer;
 
 /**  
  * <b>功能：</b>User.java<br/>
  * <b>描述：</b> 用户<br/>
  * <b>@author： </b>fengmengyue<br/>
  */
+@Document(collection="user")
 public class User extends CoreEntity {
 	private static final long serialVersionUID = 433489837920569985L;
 	
 	/**
 	 * 手机
 	 */
-	@DBField(name="mobile")
 	private String mobile;
 	
 	/**
 	 * QQ
 	 */
-	@DBField(name="qq")
 	private String qq;
 	
 	/**
 	 * 邮箱
 	 */
-	@DBField(name="email")
 	private String email;
 	
 	/**
 	 * 昵称
 	 */
-	@DBField(name="nickName")
 	private String nickName;
 	
 	/**
 	 * 头像地址
 	 */
-	@DBField(name="photo")
 	private String photoUrl;
 	
 	/**
 	 * 性别
 	 */
-	@DBField(name="sex")
 	private SexEnum sex;
 	
 	/**
 	 * 生日
 	 */
-	@DBField(name="birthday")
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	@JsonSerialize(using=DateOnlySerializer.class)
 	private Date birthday;
 
 	public String getMobile() {

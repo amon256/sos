@@ -7,7 +7,7 @@ package com.sos.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.sos.annotations.DBField;
+import org.springframework.data.annotation.Id;
 
 /**  
  * <b>功能：</b>CoreEntity.java<br/>
@@ -20,19 +20,17 @@ public abstract class CoreEntity implements Serializable {
 	/**
 	 * ID
 	 */
-	@DBField(name="_id")
+	@Id
 	private String id;
 
 	/**
 	 * 创建时间
 	 */
-	@DBField(name="createTime",modify=false)
 	private Date createTime;
 	
 	/**
 	 * 最后更新时间
 	 */
-	@DBField(name="lastUpdateTime")
 	private Date lastUpdateTime;
 
 	public String getId() {

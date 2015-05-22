@@ -37,10 +37,4 @@ public class CaptchaServiceTest extends TestBase {
 			System.out.println(cap.getMobile() + ":" + cap.getCaptcha() + ":" + cap.getEffective());
 		}
 	}
-	
-	@Test
-	public void drop(){
-		CaptchaServiceImpl impl = (CaptchaServiceImpl)captchaService;
-		impl.getMongo().getDB("sos").getCollection("captchas").drop();
-	}
 }

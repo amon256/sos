@@ -9,14 +9,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.sos.entity.Captcha;
 import com.sos.enums.BooleanEnum;
 import com.sos.persistence.CaptchaService;
-import com.sos.util.DateUtils;
 
 /**  
  * <b>功能：</b>CaptchaServiceImpl.java<br/>
@@ -26,11 +25,6 @@ import com.sos.util.DateUtils;
 @Component
 public class CaptchaServiceImpl extends AbstractService<Captcha> implements
 		CaptchaService {
-
-	@Override
-	protected String getCollectionName() {
-		return "captchas";
-	}
 
 	@Override
 	public Captcha createAndSendCaptcha(String mobile) {
@@ -49,13 +43,12 @@ public class CaptchaServiceImpl extends AbstractService<Captcha> implements
 	
 	@Override
 	public boolean checkExpireCaptcha(String mobile,String captcha) {
-		DBObject o = new BasicDBObject();
-		o.put("mobile", mobile);
-		o.put("effective", BooleanEnum.TRUE.name());
-		o.put("captcha", captcha);
-		o.put("invalidateTime", new BasicDBObject("$gte", DateUtils.format(new Date(), DateUtils.SIMPLE_PATTERN)));
-		DBObject dbObject = getDBCollection().findOne(o);
-		return dbObject != null;
+		Query query = Query.query(Criteria.where("mobile").is(mobile)
+				.and("effective").is(BooleanEnum.TRUE)
+				.and("captcha").is(captcha)
+				.and("invalidateTime").gte(new Date()));
+		Captcha result = getMongoTemplate().findOne(query, Captcha.class);
+		return result != null;
 	}
 	
 	private String createCaptcha(){
@@ -67,13 +60,13 @@ public class CaptchaServiceImpl extends AbstractService<Captcha> implements
 
 	@Override
 	public void invalidateOtherCaptcha(String mobile){
-		DBObject query = new BasicDBObject();
-		query.put("mobile", mobile);
-		query.put("effective", BooleanEnum.TRUE.name());
-		DBObject update = new BasicDBObject();
-		update.put("mobile", mobile);
-		update.put("effective", BooleanEnum.FALSE.name());
-		getDBCollection().update(query, new BasicDBObject("$set", update), true, true);
+//		DBObject query = new BasicDBObject();
+//		query.put("mobile", mobile);
+//		query.put("effective", BooleanEnum.TRUE.name());
+//		DBObject update = new BasicDBObject();
+//		update.put("mobile", mobile);
+//		update.put("effective", BooleanEnum.FALSE.name());
+//		getDBCollection().update(query, new BasicDBObject("$set", update), true, true);
 	}
 	
 	/**
