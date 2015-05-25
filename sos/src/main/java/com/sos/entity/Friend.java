@@ -5,7 +5,6 @@
 package com.sos.entity;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
