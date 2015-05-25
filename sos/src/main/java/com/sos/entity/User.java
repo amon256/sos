@@ -7,6 +7,7 @@ package com.sos.entity;
 import java.util.Date;
 
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -25,6 +26,7 @@ public class User extends CoreEntity {
 	/**
 	 * 手机
 	 */
+	@Indexed(unique=true)
 	private String mobile;
 	
 	/**

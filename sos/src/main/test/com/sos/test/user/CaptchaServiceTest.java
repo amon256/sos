@@ -32,7 +32,7 @@ public class CaptchaServiceTest extends TestBase {
 	
 	@Test
 	public void queryAll(){
-		List<Captcha> caps = captchaService.getAll();
+		List<Captcha> caps = captchaService.findAll();
 		for(Captcha cap : caps){
 			System.out.println(cap.getMobile() + ":" + cap.getCaptcha() + ":" + cap.getEffective());
 		}

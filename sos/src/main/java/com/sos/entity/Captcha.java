@@ -6,6 +6,7 @@ package com.sos.entity;
 
 import java.util.Date;
 
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.sos.enums.BooleanEnum;
@@ -22,6 +23,7 @@ public class Captcha extends CoreEntity {
 	/**
 	 * 手机号码
 	 */
+	@Indexed
 	private String mobile;
 	
 	/**

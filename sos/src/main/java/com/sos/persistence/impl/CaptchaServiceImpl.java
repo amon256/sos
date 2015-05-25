@@ -11,6 +11,7 @@ import java.util.Random;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import com.sos.entity.Captcha;
@@ -60,13 +61,12 @@ public class CaptchaServiceImpl extends AbstractService<Captcha> implements
 
 	@Override
 	public void invalidateOtherCaptcha(String mobile){
-//		DBObject query = new BasicDBObject();
-//		query.put("mobile", mobile);
-//		query.put("effective", BooleanEnum.TRUE.name());
-//		DBObject update = new BasicDBObject();
-//		update.put("mobile", mobile);
-//		update.put("effective", BooleanEnum.FALSE.name());
-//		getDBCollection().update(query, new BasicDBObject("$set", update), true, true);
+		Query query = Query.query(
+				Criteria.where("mobile").is(mobile)
+							.and("effective").is(BooleanEnum.TRUE)
+				);
+		Update update = Update.update("effective", BooleanEnum.FALSE);
+		getMongoTemplate().updateMulti(query, update, Captcha.class);
 	}
 	
 	/**

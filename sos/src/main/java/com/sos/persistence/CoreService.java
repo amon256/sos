@@ -7,6 +7,10 @@ package com.sos.persistence;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+
 import com.sos.entity.CoreEntity;
 
 /**  
@@ -22,9 +26,19 @@ public interface CoreService<T extends CoreEntity> {
 	public T add(T entity);
 	
 	/**
+	 * 批量插入
+	 */
+	public void add(List<T> entityList);
+	
+	/**
 	 * 更新数据
 	 */
 	public void update(T entity,Set<String> updateFields);
+	
+	/**
+	 * 自定义更新
+	 */
+	public void update(Query query,Update update);
 	
 	/**
 	 * 删除实体
@@ -32,12 +46,27 @@ public interface CoreService<T extends CoreEntity> {
 	public boolean delete(T Entity);
 	
 	/**
+	 * 检查是否存在数据
+	 */
+	public boolean checkExists(Criteria criteria);
+	
+	/**
 	 * 按ID查找
 	 */
-	public T get(String id);
+	public T findById(String id);
 	
 	/**
 	 * 查询所有结果
 	 */
-	public List<T> getAll();
+	public List<T> findAll();
+	
+	/**
+	 * 查询唯一对象
+	 */
+	public T findOne(Query query);
+	
+	/**
+	 * 自定义查询
+	 */
+	public List<T> findList(Query query);
 }

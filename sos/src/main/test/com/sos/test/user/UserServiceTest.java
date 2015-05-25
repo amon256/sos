@@ -4,9 +4,10 @@
  */
 package com.sos.test.user;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.sos.entity.User;
 import com.sos.enums.SexEnum;
 import com.sos.persistence.UserService;
-import com.sos.persistence.impl.UserServiceImpl;
 import com.sos.test.TestBase;
 
 /**  
@@ -30,29 +30,27 @@ public class UserServiceTest extends TestBase {
 	
 	@Test
 	public void testAdd() throws ParseException{
-		User entity = new User();
 		SimpleDateFormat sdf  = new SimpleDateFormat("yyyyMMdd");
-		entity.setBirthday(sdf.parse("19831024"));
-		entity.setCreateTime(new Date());
-		entity.setEmail("amon256@126.com");
-		entity.setLastUpdateTime(new Date());
-		entity.setMobile("15019491687");
-		entity.setNickName("风梦月");
-		entity.setQq("81443194");
-		entity.setSex(SexEnum.MAN);
-		userService.add(entity);
+		DecimalFormat df = new DecimalFormat("000");
+		List<User> users = new LinkedList<User>();
+		for(int i = 0 ; i < 1000; i++){
+			User entity = new User();
+			entity.setBirthday(sdf.parse("19831024"));
+			entity.setEmail("amon256@126.com");
+			entity.setMobile("15019491" + df.format(i));
+			entity.setNickName("风梦月");
+			entity.setQq("81443194");
+			entity.setSex(SexEnum.MAN);
+			users.add(entity);
+		}
+		userService.add(users);
 	}
 	
 	@Test
 	public void testQuery(){
-		List<User> users = userService.getAll();
+		List<User> users = userService.findAll();
 		for(User u : users){
-			System.out.println(u.getId() + "," + u.getNickName());
+			System.out.println(u.getId() + "," + u.getNickName() + "," + u.getMobile());
 		}
-	}
-	
-	@Test
-	public void testDrop(){
-		UserServiceImpl impl = (UserServiceImpl)userService;
 	}
 }

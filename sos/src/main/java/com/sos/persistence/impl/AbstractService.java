@@ -34,6 +34,15 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 	private MongoTemplate mongoTemplate;
 	
 	public T add(T entity) {
+		if(entity == null){
+			return null;
+		}
+		setDefautAddValue(entity);
+		mongoTemplate.insert(entity);
+		return entity;
+	}
+	
+	private void setDefautAddValue(T entity){
 		if(entity.getId() == null){
 			entity.setId(UUID.randomUUID().toString().toLowerCase().replaceAll("-", ""));
 		}
@@ -43,8 +52,19 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 		if(entity.getLastUpdateTime() == null){
 			entity.setLastUpdateTime(entity.getCreateTime());
 		}
-		mongoTemplate.insert(entity);
-		return entity;
+	}
+	
+	@Override
+	public void add(List<T> entityList) {
+		if(entityList == null){
+			return;
+		}
+		for(T entity : entityList){
+			if(entity != null){
+				setDefautAddValue(entity);
+			}
+		}
+		mongoTemplate.insert(entityList, getCurrentClass());
 	}
 	
 	@Override
@@ -64,19 +84,39 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 	}
 	
 	@Override
+	public void update(Query query, Update update) {
+		mongoTemplate.updateMulti(query, update, getCurrentClass());
+	}
+	
+	@Override
 	public boolean delete(T entity) {
 		mongoTemplate.remove(entity);
 		return true;
 	}
 	
-	public T get(String id){
+	@Override
+	public boolean checkExists(Criteria criteria) {
+		return mongoTemplate.exists(Query.query(criteria), getCurrentClass());
+	}
+	
+	public T findById(String id){
 		Class<T> entityClass = getCurrentClass();
 		return mongoTemplate.findById(id, entityClass);
 	}
 	
 	@Override
-	public List<T> getAll() {
+	public T findOne(Query query) {
+		return mongoTemplate.findOne(query, getCurrentClass());
+	}
+	
+	@Override
+	public List<T> findAll() {
 		return mongoTemplate.findAll(getCurrentClass());
+	}
+	
+	@Override
+	public List<T> findList(Query query) {
+		return mongoTemplate.find(query, getCurrentClass());
 	}
 	
 	protected Class<T> getCurrentClass(){

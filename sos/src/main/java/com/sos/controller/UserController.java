@@ -11,10 +11,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.sos.controller.vo.ResultObject;
 import com.sos.entity.User;
@@ -24,10 +23,10 @@ import com.sos.util.StringUtil;
 
 /**  
  * <b>功能：</b>UserController.java<br/>
- * <b>描述：</b> 用户controller<br/>
+ * <b>描述：</b> 用户controller,@RestController 仅服务于JSON<br/>
  * <b>@author： </b>fengmengyue<br/>
  */
-@Controller
+@RestController
 @RequestMapping(value="user/*")
 public class UserController extends BaseController{
 	
@@ -43,7 +42,6 @@ public class UserController extends BaseController{
 	 *用户注册申请
 	 */
 	@RequestMapping(value="register")
-	@ResponseBody
 	public ResultObject register(@RequestParam(required=true,value="mobile")String mobile,@RequestParam(required=true,value="captcha")String captcha){
 		logger.info("接收到手机号码:[{}]注册申请，验证码为:[{}]",mobile,captcha);
 		ResultObject resultObject = new ResultObject();
@@ -74,7 +72,6 @@ public class UserController extends BaseController{
 	 * 用户登录
 	 */
 	@RequestMapping(value="login")
-	@ResponseBody
 	public ResultObject login(@RequestParam(required=true,value="mobile")String mobile,@RequestParam(required=true,value="captcha")String captcha){
 		logger.info("接收到手机号码:[{}]登录申请，验证码为:[{}]",mobile,captcha);
 		ResultObject resultObject = new ResultObject();
@@ -106,7 +103,6 @@ public class UserController extends BaseController{
 	 * 用户更新
 	 */
 	@RequestMapping(value="update")
-	@ResponseBody
 	public ResultObject update(User user){
 		logger.info("接收到ID:[{}]更新信息",user.getId());
 		ResultObject resultObject = new ResultObject();
@@ -123,7 +119,7 @@ public class UserController extends BaseController{
 				updateFields.add("qq");
 				updateFields.add("email");
 				userService.update(user,updateFields);
-				user = userService.get(user.getId());
+				user = userService.findById(user.getId());
 				resultObject.setMsg("修改成功");
 				resultObject.setData(user);
 			}

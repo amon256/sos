@@ -52,4 +52,12 @@ public class ResultObject implements Serializable {
 	public void setData(Object data) {
 		this.data = data;
 	}
+	
+	public void fail(){
+		this.status = false;
+	}
+	
+	public void succ(){
+		this.status = true;
+	}
 }
