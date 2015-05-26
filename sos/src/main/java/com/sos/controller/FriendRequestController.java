@@ -21,12 +21,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sos.controller.vo.ResultObject;
-import com.sos.entity.Friend;
+import com.sos.entity.FriendRelation;
 import com.sos.entity.FriendRequest;
 import com.sos.entity.User;
+import com.sos.entity.vo.Friend;
 import com.sos.enums.DecisionResultEnum;
 import com.sos.persistence.FriendRequestService;
-import com.sos.persistence.FriendService;
+import com.sos.persistence.FriendRelationService;
 import com.sos.persistence.UserService;
 
 /**  
@@ -45,7 +46,7 @@ public class FriendRequestController extends BaseController {
 	private FriendRequestService friendRequestService;
 	
 	@Autowired
-	private FriendService friendService;
+	private FriendRelationService friendRelationService;
 
 	/**
 	 * 好友申请(批量)
@@ -60,8 +61,8 @@ public class FriendRequestController extends BaseController {
 			Set<String> unReg = getUnRegList(users, mobiles);//未注册列表
 			mobiles.removeAll(unReg);//排除未注册手机号码
 			//获取用户己有好友列表，用于判断好友是否己存在
-			List<Friend> friends = friendService.findList(Query.query(Criteria.where("self.$id").is(user.getId())));
-			Set<String> isFriend = getIsFriend(friends,mobiles);
+			FriendRelation friendRelation = friendRelationService.findOne(Query.query(Criteria.where("self.$id").is(user.getId())));
+			Set<String> isFriend = getIsFriend(friendRelation,mobiles);
 			mobiles.removeAll(isFriend);
 			if(!mobiles.isEmpty()){
 				List<FriendRequest> freqs = new LinkedList<FriendRequest>();
@@ -105,7 +106,7 @@ public class FriendRequestController extends BaseController {
 				ro.setMsg("该号码未注册");
 			}else{
 				User other = others.get(0);
-				List<Friend> friends = friendService.findList(Query.query(Criteria.where("self.$id").is(user.getId()).and("other.$id").is(other.getId())));
+				List<FriendRelation> friends = friendRelationService.findList(Query.query(Criteria.where("self.$id").is(user.getId()).and("other.$id").is(other.getId())));
 				if(friends.isEmpty()){
 					FriendRequest freq = new FriendRequest();
 					freq.setFrom(user);
@@ -138,7 +139,7 @@ public class FriendRequestController extends BaseController {
 			}else{
 				if(user.getId().equals(friendRequest.getTo().getId())){
 					if(result == DecisionResultEnum.AGREE){
-						friendService.makeFriend(friendRequest.getFrom(), friendRequest.getTo());
+						friendRelationService.makeFriend(friendRequest.getFrom(), friendRequest.getTo());
 					}
 					Set<String> fields = new HashSet<String>();
 					fields.add("decisionResult");
@@ -157,13 +158,18 @@ public class FriendRequestController extends BaseController {
 		return ro;
 	}
 	
-	private Set<String> getIsFriend(List<Friend> friends, List<String> mobiles) {
+	private Set<String> getIsFriend(FriendRelation friendRelation, List<String> mobiles) {
 		Set<String> result = new LinkedHashSet<String>();
-		for(String mobile : mobiles){
-			if(mobile != null){
-				for(Friend friend : friends){
-					if(mobile.equals(friend.getOther().getMobile())){
-						result.add(mobile);
+		if(friendRelation != null){
+			List<Friend> friends = friendRelation.getFriends();
+			if(friends != null){
+				for(String mobile : mobiles){
+					if(mobile != null){
+						for(Friend friend : friends){
+							if(mobile.equals(friend.getUser().getMobile())){
+								result.add(mobile);
+							}
+						}
 					}
 				}
 			}

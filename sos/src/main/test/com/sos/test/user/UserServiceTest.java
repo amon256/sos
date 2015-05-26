@@ -33,6 +33,7 @@ public class UserServiceTest extends TestBase {
 		SimpleDateFormat sdf  = new SimpleDateFormat("yyyyMMdd");
 		DecimalFormat df = new DecimalFormat("000");
 		List<User> users = new LinkedList<User>();
+		long start = System.currentTimeMillis();
 		for(int i = 0 ; i < 1000; i++){
 			User entity = new User();
 			entity.setBirthday(sdf.parse("19831024"));
@@ -44,6 +45,7 @@ public class UserServiceTest extends TestBase {
 			users.add(entity);
 		}
 		userService.add(users);
+		System.out.println("耗时:" + (System.currentTimeMillis() - start) + "ms");
 	}
 	
 	@Test

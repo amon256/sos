@@ -10,10 +10,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
-import com.sos.entity.Friend;
+import com.sos.entity.FriendRelation;
 import com.sos.entity.User;
-import com.sos.persistence.FriendService;
+import com.sos.persistence.FriendRelationService;
 import com.sos.persistence.UserService;
 import com.sos.test.TestBase;
 
@@ -28,14 +29,14 @@ public class FriendServiceTest extends TestBase {
 	UserService userService;
 	
 	@Autowired
-	FriendService friendService;
+	FriendRelationService friendService;
 	
 	@Test
 	public void makeFriend(){
-		User self = userService.findById("bda381e8f3f1436c9d44cbbd2a4f90a5");
+		User self = userService.findById("6609b0adeea44ed19ca9d9c59ac399e0");
 		System.out.println(self.getMobile());
 		for(int i = 0 ; i < 10; i++){
-			User other = userService.queryByMobile("1501949040" + i).get(0);
+			User other = userService.queryByMobile("1501949140" + i).get(0);
 			if(other != null){
 				friendService.makeFriend(self, other);
 			}
@@ -44,17 +45,29 @@ public class FriendServiceTest extends TestBase {
 	
 	@Test
 	public void queryAll(){
-		List<Friend> friends = friendService.findAll();
-		for(Friend f : friends){
-			System.out.println(f.getOther().getMobile());
+		long start = System.currentTimeMillis();
+		List<FriendRelation> friends = friendService.findAll();
+		System.out.println("耗时:" + (System.currentTimeMillis() - start) + "ms");
+		for(FriendRelation f : friends){
+			System.out.println(f.getSelf().getMobile() + ":" + f.getFriends().size());
 		}
 	}
 	
 	@Test
 	public void query(){
-		List<Friend> friends = friendService.findList(Query.query(Criteria.where("self.$id").is("bda381e8f3f1436c9d44cbbd2a4f90a5")));
-		for(Friend f : friends){
-			System.out.println(f.getOther().getMobile());
+		List<FriendRelation> friends = friendService.findList(Query.query(Criteria.where("self.$id").is("6609b0adeea44ed19ca9d9c59ac399e0")));
+		for(FriendRelation f : friends){
+			System.out.println(f.getSelf().getMobile() + ":" + f.getFriends().size());
 		}
+	}
+	
+	@Test
+	public void update(){
+		Query query = Query.query(Criteria.where("self.$id").is("6609b0adeea44ed19ca9d9c59ac399e0")
+				.and("friends.user").is("ef5e8e3a3a9046f4be46e2a1b2dc79df"));
+		Update update = new Update();
+		update.set("friends.$.emergencyContact", true);
+		friendService.update(query, update);
+		
 	}
 }
