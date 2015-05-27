@@ -60,7 +60,7 @@ public class FriendRelationServiceImpl extends AbstractService<FriendRelation> i
 			Friend friend = new Friend();
 			friend.setEmergencyContact(false);
 			friend.setUser(other);
-			update.push("friends", friend);
+			update.addToSet("friends", friend);
 		}
 		update(query, update);
 	}

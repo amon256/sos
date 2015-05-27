@@ -119,6 +119,11 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 		return mongoTemplate.find(query, getCurrentClass());
 	}
 	
+	@Override
+	public long count(Query query) {
+		return mongoTemplate.count(query, getCurrentClass());
+	}
+	
 	protected Class<T> getCurrentClass(){
 		ParameterizedType parameterizedType = (ParameterizedType)this.getClass().getGenericSuperclass(); 
 		@SuppressWarnings("unchecked")

@@ -57,15 +57,19 @@ public class FriendRelationController extends BaseController {
 	}
 	
 	/**
-	 * 设置紧急联系人 
+	 * 更新备注名和紧急联系人
 	 * TODO 是否只需要一个紧急联系人 (其它联系人置为false)
 	 */
-	@RequestMapping(value="emergency")
-	public ResultObject emergency(@RequestParam(value="id",required=true)String id,@RequestParam(value="friendId",required=true)String friendId){
+	@RequestMapping(value="updateFriend")
+	public ResultObject updateFriend(@RequestParam(value="id",required=true)String id,
+			@RequestParam(value="friendId",required=true)String friendId,
+			@RequestParam(value="descName")String descName,
+			@RequestParam(value="emergencyContact")boolean emergencyContact){
 		ResultObject ro = new ResultObject();
 		Query query = Query.query(Criteria.where("self.$id").is(id).and("friends.user").is(friendId));
 		Update update = new Update();
-		update.set("friends.$.emergencyContact", true);
+		update.set("friends.$.emergencyContact", emergencyContact)
+			.set("friends.$.descName", descName);
 		friendRelationService.update(query, update);
 		return ro;
 	}

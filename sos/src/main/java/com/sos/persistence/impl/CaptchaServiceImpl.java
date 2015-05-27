@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.sos.entity.Captcha;
 import com.sos.enums.BooleanEnum;
 import com.sos.persistence.CaptchaService;
+import com.sos.sms.SMSSender;
 
 /**  
  * <b>功能：</b>CaptchaServiceImpl.java<br/>
@@ -24,9 +27,9 @@ import com.sos.persistence.CaptchaService;
  * <b>@author： </b>fengmengyue<br/>
  */
 @Component
-public class CaptchaServiceImpl extends AbstractService<Captcha> implements
-		CaptchaService {
-
+public class CaptchaServiceImpl extends AbstractService<Captcha> implements CaptchaService {
+	private static final Logger logger = LoggerFactory.getLogger(CaptchaServiceImpl.class);
+	
 	@Override
 	public Captcha createAndSendCaptcha(String mobile) {
 		Captcha captcha = new Captcha();
@@ -73,7 +76,14 @@ public class CaptchaServiceImpl extends AbstractService<Captcha> implements
 	 * 发送短信
 	 */
 	private boolean sendSms(Captcha captcha){
-		//TODO
+		String msg = "您的验证码是："+captcha.getCaptcha()+"。请不要把验证码泄露给其他人。";
+		try{
+			SMSSender.sendSMS(captcha.getMobile(), msg);
+		}catch(Exception e){
+			//发送短信失败
+			logger.error("发送短信失败", e);
+			return false;
+		}
 		return true;
 	}
 }

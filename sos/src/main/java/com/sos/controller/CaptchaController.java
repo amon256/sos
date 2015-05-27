@@ -4,14 +4,21 @@
  */
 package com.sos.controller;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.sos.config.SMSContext;
+import com.sos.config.SystemConfig;
 import com.sos.controller.vo.ResultObject;
 import com.sos.entity.Captcha;
 import com.sos.persistence.CaptchaService;
@@ -40,8 +47,14 @@ public class CaptchaController extends BaseController{
 		ResultObject result = new ResultObject();
 		if(StringUtil.isMobile(mobile)){
 			try{
-				Captcha captcha = captchaService.createAndSendCaptcha(mobile);
-				logger.info("给手机:[{}]发送验证码:[{}]成功",captcha.getMobile(),captcha.getCaptcha());
+				if(validate(mobile)){
+					Captcha captcha = captchaService.createAndSendCaptcha(mobile);
+					logger.info("给手机:[{}]发送验证码:[{}]成功",captcha.getMobile(),captcha.getCaptcha());
+				}else{
+					logger.info("号码:{}当天发送短信次数超过限制.",mobile);
+					result.fail();
+					result.setMsg("该号码当天发送短信次数超过限制");
+				}
 			}catch(Exception e){
 				logger.error("请求发送短信失败", e);
 				result.setStatus(false);
@@ -52,5 +65,23 @@ public class CaptchaController extends BaseController{
 			result.setMsg("手机号码不正确");
 		}
 		return result;
+	}
+	
+	private boolean validate(String mobile){
+		SMSContext ctx = SystemConfig.getContext(SMSContext.class);
+		int max = 5;//最多默认为5次
+		if(ctx != null && ctx.getMaxTimePerMobilePerDay() > 0){
+			max = ctx.getMaxTimePerMobilePerDay();
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		Date start = cal.getTime();
+		cal.add(Calendar.DATE, 1);
+		Date end = cal.getTime();
+		Query query = Query.query(Criteria.where("mobile").is(mobile).and("createTime").gte(start).lte(end));
+		long sendSize = captchaService.count(query);
+		return sendSize < max;
 	}
 }

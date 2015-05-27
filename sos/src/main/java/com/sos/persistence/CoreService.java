@@ -69,4 +69,9 @@ public interface CoreService<T extends CoreEntity>{
 	 * 自定义查询
 	 */
 	public List<T> findList(Query query);
+	
+	/**
+	 * 查询数据条数
+	 */
+	public long count(Query query);
 }

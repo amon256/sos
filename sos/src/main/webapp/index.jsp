@@ -274,7 +274,7 @@
 								div.find('[data=title]').html(messes[i].title);
 								var content = messes[i].content;
 								content += '<div style="float : right;">';
-								if(messes[i].type == 'FRIEND_REQ'){
+								if(messes[i].type == 'FRIEND_REQ' && messes[i].status != 'HASDEAL'){
 									content += '&nbsp;<button type="button" class="btn btn-success btn-xs" onclick="applyMessage(\''+messes[i].id+'\',\'AGREE\')">同意</button>&nbsp;<button type="button" class="btn btn-warning btn-xs" onclick="applyMessage(\''+messes[i].id+'\',\'OPPOSE\')">拒绝</button>';
 								}
 								content += '&nbsp;<button type="button" class="btn btn-default btn-xs" onclick="removeMessage(\''+messes[i].id+'\')">删除</button></div>';
@@ -290,13 +290,15 @@
 			}
 			
 			function applyMessage(messageId,result){
+				$('#' + messageId).find('button:lt(2)').attr('disabled','disabled');
 				$.post('message/apply',{id : user.id, messageId : messageId,decision : result},function(json){
-					$('#' + messageId).remove();
+					alert("处理成功");
+					$('#' + messageId).find('button:lt(2)').remove();
 				});
 			}
 			
 			function removeMessage(messageId){
-				$.post('message/remove',{id : user.id, messageId : messageId},function(json){
+				$.post('message/remove',{id : user.id, messageIds : messageId},function(json){
 					$('#' + messageId).remove();
 				});
 			}
@@ -330,9 +332,15 @@
 							var ctn = $('#friendPanel').find('.list-group');
 							ctn.empty();
 							for(var i = 0; i < friends.length; i++){
-								var nickName = friends[i].descName || friends[i].user.nickName || friends[i].mobile;
-								var emergencyContact = friends[i].emergencyContact?'是':'';
-								$('<li class="list-group-item row"><label class="col-sm-2">'+nickName+'</label><span class="col-sm-10" >'+friends[i].user.mobile+'</span><span>'+emergencyContact+'</span></li>').appendTo(ctn);
+								var fr = friends[i];
+								var nickName = fr.descName || fr.user.nickName || fr.mobile;
+								var emergencyContact = fr.emergencyContact?'紧':'';
+								$('<li class="list-group-item row"><label class="col-sm-2"><a href="javascript:void(0)">'+nickName+'</a></label><span class="col-sm-10" >'+fr.user.mobile+'</span><span>'+emergencyContact+'</span></li>')
+									.appendTo(ctn)
+									.find('a').click(function(){
+										loadFiendInfo(fr);
+										changePanel('friendPanel', 'friendInfoPanel');
+									});
 							}
 						}
 						if(fn && fn instanceof Function){
@@ -348,6 +356,57 @@
 	
 	<!-- 好友信息 -->
 	<div id="friendInfoPanel" class="panel panel-default" style="display: none;">
+		<div class="panel-heading"><a href="javascript:changePanel('friendInfoPanel','friendPanel',loadFriendList);" class="btn btn-primary btn-xs">返回</a>&nbsp;&nbsp;<label data="nickName">好友信息</label></div>
+		<div class="panel-body">
+			<form id="friendEditForm" onsubmit="return false">
+				<input type="hidden" name="friendId" id="friendId"/>
+				<ul class="list-group">
+				  <li class="list-group-item row"><label class="col-sm-2">昵称:</label><span class="col-sm-10" data="nickName"></span></li>
+				  <li class="list-group-item row"><label class="col-sm-2">备注:</label><span class="col-sm-10"><input type="text" name="descName" style="width: 100px;" id="descName" /></span></li>
+				  <li class="list-group-item row"><label class="col-sm-2">紧急联系人:</label><span class="col-sm-10"><input type="checkbox" name="emergencyContact" id="emergencyContact" /></span></li>
+				  <li class="list-group-item row"><label class="col-sm-2">手机:</label><span class="col-sm-10" data="mobile"></span></li>
+				  <li class="list-group-item row"><label class="col-sm-2">Q&nbsp;Q:</label><span class="col-sm-10" data="qq"></span></li>
+				  <li class="list-group-item row"><label class="col-sm-2">邮箱:</label><span class="col-sm-10" data="email"></span></li>
+				  <li class="list-group-item row"><label class="col-sm-2">性别:</label><span class="col-sm-10" data="sex" options="{'MAN' : '男' , 'WOMAN' : '女'}"></span></li>
+				  <li class="list-group-item row"><input type="button" id="btn_savefriend" class="btn btn-default" style="width:100%" value="保存"/></li>
+				</ul>
+			</form>
+		</div>
+		<script type="text/javascript">
+			function loadFiendInfo(friend){
+				var u = friend.user;
+				$('#friendInfoPanel').find('[data]').each(function(){
+					var key = $(this).attr('data');
+					if(u[key]){
+						var value = u[key];
+						if($(this).attr('options')){
+							var o = eval('(' + $(this).attr('options') + ')' );
+							value = o[value] || value;
+						}
+						$(this).html(value);
+					}
+				});
+				$('#friendInfoPanel').find('#friendId').val(friend.user.id);
+				$('#friendInfoPanel').find('#descName').val(friend.descName);
+				if(friend.emergencyContact){
+					$('#friendInfoPanel').find('#emergencyContact').attr('checked','checked');
+				}
+			}
+			$(function(){
+				$('#btn_savefriend').click(function(){
+					var friendId = $('#friendInfoPanel').find('#friendId').val();
+					var descName = $('#friendInfoPanel').find('#descName').val();
+					var emergencyContact = $('#friendInfoPanel').find('#emergencyContact:checked').length > 0;
+					$.post('friend/updateFriend',{id : user.id,descName : descName,friendId : friendId,emergencyContact : emergencyContact},function(json){
+						if(json.status === true){
+							alert('保存成功');
+						}else{
+							alert(json.msg);
+						}
+					});
+				});
+			});
+		</script>
 	</div>
 	
 	<!-- 手动添加好友 -->
