@@ -39,10 +39,10 @@ public class FriendRelationController extends BaseController {
 	@RequestMapping(value="list")
 	public ResultObject friends(@RequestParam(value="id",required=true)String id){
 		ResultObject ro = new ResultObject();
-		if(id == null){
+		if(id != null){
 			User user = userService.findById(id);
 			if(user != null){
-				FriendRelation friendRelation = friendRelationService.findOne(Query.query(Criteria.where("self.id").is(id)));
+				FriendRelation friendRelation = friendRelationService.findOne(Query.query(Criteria.where("self.$id").is(id)));
 				ro.setMsg("好友列表加载成功");
 				ro.setData(friendRelation == null?null : friendRelation.getFriends());
 			}else{
@@ -60,7 +60,7 @@ public class FriendRelationController extends BaseController {
 	 * 设置紧急联系人 
 	 * TODO 是否只需要一个紧急联系人 (其它联系人置为false)
 	 */
-	@RequestMapping(value="list")
+	@RequestMapping(value="emergency")
 	public ResultObject emergency(@RequestParam(value="id",required=true)String id,@RequestParam(value="friendId",required=true)String friendId){
 		ResultObject ro = new ResultObject();
 		Query query = Query.query(Criteria.where("self.$id").is(id).and("friends.user").is(friendId));

@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
 		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.4.xsd
 		"
-	default-lazy-init="true ">
+	default-lazy-init="false ">
 
 	<context:component-scan base-package="com.sos" />
 	<context:annotation-config />

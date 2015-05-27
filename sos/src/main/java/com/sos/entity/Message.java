@@ -4,6 +4,8 @@
  */
 package com.sos.entity;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.sos.enums.MessageStatusEnum;
@@ -17,6 +19,13 @@ import com.sos.enums.MessageTypeEnum;
 @Document(collection="message")
 public class Message extends CoreEntity {
 	private static final long serialVersionUID = -2008289193007573185L;
+	
+	/**
+	 * 消息接收人
+	 */
+	@DBRef
+	@JsonIgnore
+	private User receiver;
 
 	/**
 	 * 消息标题
@@ -37,6 +46,16 @@ public class Message extends CoreEntity {
 	 * 消息状态
 	 */
 	private MessageStatusEnum status;
+	
+	/**
+	 * 阅读状态
+	 */
+	private boolean read = false;
+	
+	/**
+	 * 删除状态
+	 */
+	private boolean delete = false;
 	
 	/**
 	 * 消息关联业务ID
@@ -81,5 +100,29 @@ public class Message extends CoreEntity {
 
 	public void setRefId(String refId) {
 		this.refId = refId;
+	}
+
+	public boolean isRead() {
+		return read;
+	}
+
+	public void setRead(boolean read) {
+		this.read = read;
+	}
+
+	public boolean isDelete() {
+		return delete;
+	}
+
+	public void setDelete(boolean delete) {
+		this.delete = delete;
+	}
+
+	public User getReceiver() {
+		return receiver;
+	}
+
+	public void setReceiver(User receiver) {
+		this.receiver = receiver;
 	}
 }

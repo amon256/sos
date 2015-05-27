@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.sos.entity.FriendRelation;
 import com.sos.entity.User;
+import com.sos.entity.vo.Friend;
 import com.sos.persistence.FriendRelationService;
 
 /**  
@@ -56,7 +57,10 @@ public class FriendRelationServiceImpl extends AbstractService<FriendRelation> i
 		}
 		Update update = new Update();
 		for(User other : others){
-			update.push("friends", other);
+			Friend friend = new Friend();
+			friend.setEmergencyContact(false);
+			friend.setUser(other);
+			update.push("friends", friend);
 		}
 		update(query, update);
 	}

@@ -4,7 +4,6 @@
  */
 package com.sos.controller;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -19,6 +18,7 @@ import com.sos.controller.vo.ResultObject;
 import com.sos.entity.User;
 import com.sos.persistence.CaptchaService;
 import com.sos.persistence.UserService;
+import com.sos.util.CollectionUtils;
 import com.sos.util.StringUtil;
 
 /**  
@@ -69,7 +69,7 @@ public class UserController extends BaseController{
 	}
 	
 	/**
-	 * 用户登录
+	 * 用户登录(免注册，如果数据库不存在，则自动注册)
 	 */
 	@RequestMapping(value="login")
 	public ResultObject login(@RequestParam(required=true,value="mobile")String mobile,@RequestParam(required=true,value="captcha")String captcha){
@@ -83,10 +83,16 @@ public class UserController extends BaseController{
 				resultObject.setStatus(false);
 				resultObject.setMsg(msg);
 			}else{
-				User entity = new User();
-				entity.setMobile(mobile);
-				entity.setNickName(mobile);
-				entity = userService.queryByMobile(mobile).get(0);
+				List<User> users = userService.queryByMobile(mobile);
+				User entity = null;
+				if(users == null || users.isEmpty()){
+					entity = new User();
+					entity.setMobile(mobile);
+					entity.setNickName(mobile);
+					entity = userService.add(entity);
+				}else{
+					entity = users.get(0);
+				}
 				resultObject.setMsg("登录成功");
 				resultObject.setData(entity);
 			}
@@ -112,12 +118,7 @@ public class UserController extends BaseController{
 				resultObject.setStatus(false);
 				resultObject.setMsg(msg);
 			}else{
-				Set<String> updateFields = new HashSet<String>();
-				updateFields.add("nickName");
-				updateFields.add("sex");
-				updateFields.add("birthday");
-				updateFields.add("qq");
-				updateFields.add("email");
+				Set<String> updateFields = CollectionUtils.createSet(String.class, "nickName","sex","birthday","qq","email");
 				userService.update(user,updateFields);
 				user = userService.findById(user.getId());
 				resultObject.setMsg("修改成功");
@@ -151,9 +152,9 @@ public class UserController extends BaseController{
 
 	private String validateForLogin(String mobile,String captcha){
 		//校验用户是否存在
-		if(userService.queryByMobile(mobile).isEmpty()){
-			return "该电话号码尚未注册";
-		}
+//		if(userService.queryByMobile(mobile).isEmpty()){
+//			return "该电话号码尚未注册";
+//		}
 		if(!captchaService.checkExpireCaptcha(mobile, captcha)){
 			return "验证码不正确或己失效";
 		}

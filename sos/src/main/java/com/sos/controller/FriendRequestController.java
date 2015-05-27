@@ -29,6 +29,7 @@ import com.sos.enums.DecisionResultEnum;
 import com.sos.persistence.FriendRequestService;
 import com.sos.persistence.FriendRelationService;
 import com.sos.persistence.UserService;
+import com.sos.util.CollectionUtils;
 
 /**  
  * <b>功能：</b>FriendRequestController.java<br/>
@@ -64,6 +65,10 @@ public class FriendRequestController extends BaseController {
 			FriendRelation friendRelation = friendRelationService.findOne(Query.query(Criteria.where("self.$id").is(user.getId())));
 			Set<String> isFriend = getIsFriend(friendRelation,mobiles);
 			mobiles.removeAll(isFriend);
+			//获取好友申请列表，用于判断是否己提交申请未处理
+			List<FriendRequest> friendRequestList = friendRequestService.findList(Query.query(Criteria.where("from.$id").is(user.getId()).and("decisionResult").nin(DecisionResultEnum.AGREE,DecisionResultEnum.OPPOSE)));
+			Set<String> hasRequest = getHasRequest(friendRequestList,mobiles);
+			mobiles.removeAll(hasRequest);
 			if(!mobiles.isEmpty()){
 				List<FriendRequest> freqs = new LinkedList<FriendRequest>();
 				for(User other : users){
@@ -83,6 +88,7 @@ public class FriendRequestController extends BaseController {
 			resultData.put("unReg", unReg);
 			resultData.put("isFriend", isFriend);
 			resultData.put("send", mobiles);
+			resultData.put("hasRequest", hasRequest);
 			ro.setData(resultData);
 			ro.setMsg("成功发出" + mobiles.size() + "个好友申请");
 		}else{
@@ -92,6 +98,18 @@ public class FriendRequestController extends BaseController {
 		return ro;
 	}
 	
+	private Set<String> getHasRequest(List<FriendRequest> friendRequestList,ArrayList<String> mobiles) {
+		Set<String> result = new HashSet<String>();
+		if(friendRequestList != null && !friendRequestList.isEmpty()){
+			for(FriendRequest freq : friendRequestList){
+				if(mobiles.contains(freq.getTo().getMobile())){
+					result.add(freq.getTo().getMobile());
+				}
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * 好友申请(单个)
 	 */
@@ -108,11 +126,19 @@ public class FriendRequestController extends BaseController {
 				User other = others.get(0);
 				List<FriendRelation> friends = friendRelationService.findList(Query.query(Criteria.where("self.$id").is(user.getId()).and("other.$id").is(other.getId())));
 				if(friends.isEmpty()){
-					FriendRequest freq = new FriendRequest();
-					freq.setFrom(user);
-					freq.setTo(other);
-					friendRequestService.add(freq);
-					ro.setMsg("成功发送好友申请");
+						List<FriendRequest> friendRequest =  friendRequestService.findList(Query.query(Criteria.where("from.$id").is(user.getId())
+									.and("to.$id").is(other.getId())
+									.and("decisionResult").nin(DecisionResultEnum.AGREE,DecisionResultEnum.OPPOSE)));
+						if(friendRequest == null || friendRequest.isEmpty()){
+							FriendRequest freq = new FriendRequest();
+							freq.setFrom(user);
+							freq.setTo(other);
+							friendRequestService.add(freq);
+							ro.setMsg("成功发送好友申请");
+						}else{
+							ro.fail();
+							ro.setMsg("请勿重复发送申请");
+						}
 				}else{
 					ro.setMsg("你们已经是好友，不需要重复申请");
 				}
@@ -141,8 +167,7 @@ public class FriendRequestController extends BaseController {
 					if(result == DecisionResultEnum.AGREE){
 						friendRelationService.makeFriend(friendRequest.getFrom(), friendRequest.getTo());
 					}
-					Set<String> fields = new HashSet<String>();
-					fields.add("decisionResult");
+					Set<String> fields = CollectionUtils.createSet(String.class, "decisionResult");
 					friendRequest.setDecisionResult(result);
 					friendRequestService.update(friendRequest, fields);
 					ro.setMsg("操作成功");

@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sos.entity.Captcha;
 import com.sos.persistence.CaptchaService;
-import com.sos.persistence.impl.CaptchaServiceImpl;
 import com.sos.test.TestBase;
 
 /**  

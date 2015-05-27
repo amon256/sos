@@ -5,6 +5,7 @@
 package com.sos.persistence;
 
 import com.sos.entity.Message;
+import com.sos.enums.DecisionResultEnum;
 
 /**  
  * <b>功能：</b>MessageService.java<br/>
@@ -13,4 +14,8 @@ import com.sos.entity.Message;
  */
 public interface MessageService extends CoreService<Message> {
 	
+	/**
+	 * 处理消息
+	 */
+	public void apply(Message message,DecisionResultEnum decision);
 }

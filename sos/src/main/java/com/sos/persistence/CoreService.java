@@ -4,8 +4,8 @@
  */
 package com.sos.persistence;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,7 +18,7 @@ import com.sos.entity.CoreEntity;
  * <b>描述：</b> 对功能点的描述<br/>
  * <b>@author： </b>fengmengyue<br/>
  */
-public interface CoreService<T extends CoreEntity> {
+public interface CoreService<T extends CoreEntity>{
 	
 	/**
 	 * 增加实体
@@ -33,7 +33,7 @@ public interface CoreService<T extends CoreEntity> {
 	/**
 	 * 更新数据
 	 */
-	public void update(T entity,Set<String> updateFields);
+	public void update(T entity,Collection<String> updateFields);
 	
 	/**
 	 * 自定义更新

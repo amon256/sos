@@ -5,9 +5,9 @@
 package com.sos.persistence.impl;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.BeanUtils;
@@ -68,7 +68,7 @@ public abstract class AbstractService<T extends CoreEntity> implements CoreServi
 	}
 	
 	@Override
-	public void update(T entity, Set<String> updateFields) {
+	public void update(T entity, Collection<String> updateFields) {
 		if(entity == null || entity.getId() == null || updateFields == null || updateFields.isEmpty()){
 			return;
 		}
